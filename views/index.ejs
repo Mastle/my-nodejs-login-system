@@ -1,4 +1,7 @@
-<h1>Hi <%= name %></h1>
-<form action="/logout?_method=DELETE" method="POST">
-  <button type="submit">Log Out</button>
-</form>
+<link rel="stylesheet" href="/main.css" type="text/css">
+<div class="container-fluid text-center">
+  <h1 class="my-5">Hi <%= name %></h1>
+  <form action="/logout?_method=DELETE" method="POST">
+    <button type="submit" class="btn btn-primary my-3">Log Out</button>
+  </form>
+</div>

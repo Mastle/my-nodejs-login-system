@@ -1,16 +1,20 @@
-<h1>Login</h1>
+<link rel="stylesheet" href="/main.css" type="text/css">
+
+<h1 class="text-center my-5">Login</h1>
 <% if (messages.error) { %>
   <%= messages.error %>
 <% } %>
-<form action="/login" method="POST">
-  <div>
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" required>
-  </div>
-  <div>
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" required>
-  </div>
-  <button type="submit">Login</button>
-</form>
-<a href="/register">Register</a>
+<div class="container-xl text-center">
+  <form action="/login" method="POST">
+    <div class="my-3">
+      <label for="email">Email</label>
+      <input class="fix-input type="email" id="email" name="email" required>
+    </div>
+    <div class="my-3">
+      <label class="fix-label"  for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <button type="submit" class="btn btn-primary my-3">Login</button>
+  </form>
+  <a href="/register">Register</a>
+</div>
