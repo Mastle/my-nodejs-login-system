@@ -1,6 +1,11 @@
+//Must use Postgres as the backend. If I fail at any part, I'll watch the video
+//Current step: So it looks like that fisrt of all, I'll add the prisma client here
+
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
+
+
 
 const express = require('express')
 const app = express()
@@ -9,11 +14,13 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+const { PrismaClient } = require("@prisma/client")
+const prisma = new PrismaClient()
 
 const initializePassport = require('./passport-config')
 initializePassport(
   passport,
-  email => users.find(user => user.email === email),
+  email => users.find(user => user.email === email), //Is this where I should call the prisma functions that returns the user's email from the database?
   id => users.find(user => user.id === id)
 )
 
@@ -30,7 +37,7 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
-app.use(express.static('dist'));
+app.use(express.static('dist'))
 
 app.get('/', checkAuthenticated, (req, res) => {
   res.render('index.ejs', { name: req.user.name })
@@ -67,7 +74,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
 
 app.delete('/logout', (req, res, next) => {
   req.logOut((err) => {
-    if(err) {
+    if (err) {
       return next(err)
     }
   })
@@ -77,9 +84,9 @@ app.delete('/logout', (req, res, next) => {
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next()
-  }
+  } else
+    res.redirect('/login')
 
-  res.redirect('/login')
 }
 
 function checkNotAuthenticated(req, res, next) {
@@ -89,4 +96,25 @@ function checkNotAuthenticated(req, res, next) {
   next()
 }
 
+
+async function prismaMain() {
+  const user = await prisma.user.create({ data: { name: "Kyle" } })
+  console.log(user)
+}
+
+prismaMain()
+  .catch(e => {
+    console.error(e.message)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
+
+
 app.listen(3001)
+
+/*
+
+ current step: now figure out how to add the users to the database by getting them from ExpressJS
+ 
+*/
