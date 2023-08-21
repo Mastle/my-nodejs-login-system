@@ -98,7 +98,7 @@ function checkNotAuthenticated(req, res, next) {
 
 
 async function prismaMain() {
-  const user = await prisma.user.create({ data: { name: "Kyle" } })
+  const user = await prisma.user.findFirst({ where: { name: 'test user', email: 'coolmail@ymail.com', password: '1022test' } })
   console.log(user)
 }
 
@@ -111,7 +111,7 @@ prismaMain()
   })
 
 
-app.listen(3001)
+app.listen(3002)
 
 /*
 
