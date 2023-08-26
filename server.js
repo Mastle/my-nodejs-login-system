@@ -1,6 +1,3 @@
-//Must use Postgres as the backend. If I fail at any part, I'll watch the video
-//Current step: So it looks like that fisrt of all, I'll add the prisma client here
-
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
@@ -20,8 +17,11 @@ const prisma = new PrismaClient()
 const initializePassport = require('./passport-config')
 initializePassport(
   passport,
-  email => users.find(user => user.email === email), //Is this where I should call the prisma functions that returns the user's email from the database?
+  email => users.find(user => user.email === email),
   id => users.find(user => user.id === id)
+  //current step (check windows note):  this is exactly the prisma search function that returns user email and id 
+  //so it looks like if I give passport the user as an object through their email, I'll easily be able to access to his password as well
+  //I need to do the same thing with their id's
 )
 
 const users = []
@@ -48,6 +48,7 @@ app.get('/login', checkNotAuthenticated, (req, res) => {
 })
 
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
+
   successRedirect: '/',
   failureRedirect: '/login',
   failureFlash: true
@@ -57,15 +58,30 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
   res.render('register.ejs')
 })
 
+//current step: So I push the data into the database here for  registeration.
+
+//adding user with prisma
+async function addUser(userName, userEmail, userPassword) {
+  await prisma.user.create({
+    data: {
+      name: userName,
+      email: userEmail,
+      password: userPassword
+    }
+  })
+}
+
+
 app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    users.push({
-      id: Date.now().toString(),
-      name: req.body.name,
-      email: req.body.email,
-      password: hashedPassword
-    })
+    const name = req.body.name
+    const email = req.body.email
+    const password = hashedPassword
+    addUser(name, email, password)
+      .catch(e => { console.error(e.message) })
+      .finally(async () => { await prisma.$disconnect() })
     res.redirect('/login')
   } catch {
     res.redirect('/register')
@@ -97,24 +113,19 @@ function checkNotAuthenticated(req, res, next) {
 }
 
 
-async function prismaMain() {
-  const user = await prisma.user.findFirst({ where: { name: 'test user', email: 'coolmail@ymail.com', password: '1022test' } })
-  console.log(user)
-}
+// async function prismaMain() {
+//   const user = await prisma.user.findFirst({ where: { name: 'test user', email: 'coolmail@ymail.com', password: '1022test' } })
+//   console.log(user)
+// }
 
-prismaMain()
-  .catch(e => {
-    console.error(e.message)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+// prismaMain()
+//   .catch(e => {
+//     console.error(e.message)
+//   })
+//   .finally(async () => {
+//     await prisma.$disconnect()
+//   })
 
 
 app.listen(3002)
 
-/*
-
- current step: now figure out how to add the users to the database by getting them from ExpressJS
- 
-*/
