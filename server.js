@@ -2,6 +2,8 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 
+//current step: study promise based functions & how passport works extensively. You suck at both of those
+//TODO: also, the code could use some cleaning up
 
 
 const express = require('express')
@@ -17,14 +19,52 @@ const prisma = new PrismaClient()
 const initializePassport = require('./passport-config')
 initializePassport(
   passport,
-  email => users.find(user => user.email === email),
-  id => users.find(user => user.id === id)
-  //current step (check windows note):  this is exactly the prisma search function that returns user email and id 
-  //so it looks like if I give passport the user as an object through their email, I'll easily be able to access to his password as well
-  //I need to do the same thing with their id's
+  async email => await getUserByEmail(email),
+  async id => await getUserByID(id)
+
 )
 
-const users = []
+//find user with prisma
+async function getUserByEmail(userEmail) {
+
+  const userObj = await prisma.user.findUnique({
+    where: {
+      email: userEmail,
+    }
+  })
+
+  return userObj
+
+}
+
+
+async function getUserByID(userID) {
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: userID,
+    }
+  })
+  return userObj
+
+}
+
+
+//how to get values from async functions
+// const giveUser = async () => {
+//   const a = await getUserByEmail('amirsihezar@gmail.com')
+//   console.log(a)
+// }
+
+// giveUser()
+// getUserByEmail('amirsihezar@gmail.com')
+// getUserByID('2972bfae-179c-4c0e-a5e4-c8f2c4c117b0')
+
+
+// .catch(e => { console.error(e.message) })
+// .finally(async () => { await prisma.$disconnect() })
+
+
+
 
 app.set('view-engine', 'ejs')
 app.use(express.urlencoded({ extended: false }))
@@ -39,7 +79,7 @@ app.use(passport.session())
 app.use(methodOverride('_method'))
 app.use(express.static('dist'))
 
-app.get('/', checkAuthenticated, (req, res) => {
+app.get('/', checkAuthenticated, async (req, res) => {
   res.render('index.ejs', { name: req.user.name })
 })
 
@@ -58,7 +98,6 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
   res.render('register.ejs')
 })
 
-//current step: So I push the data into the database here for  registeration.
 
 //adding user with prisma
 async function addUser(userName, userEmail, userPassword) {
