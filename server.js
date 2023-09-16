@@ -2,7 +2,9 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 
-//current step: study promise based functions & how passport works extensively. You suck at both of those
+//current step: study express.js, bcrypt (so what is exactly different from a session with a user that's logged in and a session for a non-registered user?)
+//next step: clean up the code, move the prisma (I could really use a better app architecture for express.js apps)
+//next step: expand the funtionalities, turn into a full fledged API
 //TODO: also, the code could use some cleaning up
 
 
@@ -13,9 +15,7 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
-const { PrismaClient } = require("@prisma/client")
-const prisma = new PrismaClient()
-
+const { addUser, getUserByEmail, getUserByID } = require('./prisma/prismaMethods')
 const initializePassport = require('./passport-config')
 initializePassport(
   passport,
@@ -23,46 +23,6 @@ initializePassport(
   async id => await getUserByID(id)
 
 )
-
-//find user with prisma
-async function getUserByEmail(userEmail) {
-
-  const userObj = await prisma.user.findUnique({
-    where: {
-      email: userEmail,
-    }
-  })
-
-  return userObj
-
-}
-
-
-async function getUserByID(userID) {
-  const userObj = await prisma.user.findUnique({
-    where: {
-      id: userID,
-    }
-  })
-  return userObj
-
-}
-
-
-//how to get values from async functions
-// const giveUser = async () => {
-//   const a = await getUserByEmail('amirsihezar@gmail.com')
-//   console.log(a)
-// }
-
-// giveUser()
-// getUserByEmail('amirsihezar@gmail.com')
-// getUserByID('2972bfae-179c-4c0e-a5e4-c8f2c4c117b0')
-
-
-// .catch(e => { console.error(e.message) })
-// .finally(async () => { await prisma.$disconnect() })
-
 
 
 
@@ -97,18 +57,6 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
 app.get('/register', checkNotAuthenticated, (req, res) => {
   res.render('register.ejs')
 })
-
-
-//adding user with prisma
-async function addUser(userName, userEmail, userPassword) {
-  await prisma.user.create({
-    data: {
-      name: userName,
-      email: userEmail,
-      password: userPassword
-    }
-  })
-}
 
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
@@ -152,18 +100,6 @@ function checkNotAuthenticated(req, res, next) {
 }
 
 
-// async function prismaMain() {
-//   const user = await prisma.user.findFirst({ where: { name: 'test user', email: 'coolmail@ymail.com', password: '1022test' } })
-//   console.log(user)
-// }
-
-// prismaMain()
-//   .catch(e => {
-//     console.error(e.message)
-//   })
-//   .finally(async () => {
-//     await prisma.$disconnect()
-//   })
 
 
 app.listen(3002)
