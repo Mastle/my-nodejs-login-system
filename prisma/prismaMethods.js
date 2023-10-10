@@ -3,13 +3,18 @@ const prisma = new PrismaClient()
 
 //adding user with prisma
 async function addUser(userName, userEmail, userPassword) {
-    await prisma.user.create({
-        data: {
-            name: userName,
-            email: userEmail,
-            password: userPassword
-        }
-    })
+    try {
+        await prisma.user.create({
+            data: {
+                name: userName,
+                email: userEmail,
+                password: userPassword
+            }
+        })
+    } catch (e) {
+        console.log(e)
+    }
+
 }
 
 

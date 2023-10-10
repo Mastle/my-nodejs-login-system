@@ -3,18 +3,18 @@
 <h1 class="text-center my-5">Login</h1>
 <% if (messages.error) { %>
   <%= messages.error %>
-<% } %>
-<div class="container-xl text-center">
-  <form action="/login" method="POST">
-    <div class="my-3">
-      <label for="email">Email</label>
-      <input class="fix-input type="email" id="email" name="email" required>
-    </div>
-    <div class="my-3">
-      <label class="fix-label"  for="password">Password</label>
-      <input type="password" id="password" name="password" required>
-    </div>
-    <button type="submit" class="btn btn-primary my-3">Login</button>
-  </form>
-  <a href="/register">Register</a>
-</div>
+    <% } %>
+      <div class="container-xl text-center">
+        <form action="/login" method="POST">
+          <div class="my-3">
+            <label for="email">Email</label>
+            <input class="fix-input type=" email" id="email" name="email" required>
+          </div>
+          <div class="my-3">
+            <label class="fix-label" for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary my-3">Login</button>
+        </form>
+        <a href="/register">Register</a>
+      </div>
